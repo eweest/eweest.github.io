@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Majestic Wiki Style | Компактные счетчики</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        :root {
+            --color-background-primary: #1d1d1d;
+            --color-background-primary-rgb: 29,29,29;
+            --color-background-secondary: #242424;
+            --color-background-tertiary: #424242;
+            --color-background-tertiary-alpha50: #333333;
+            --color-background-tertiary-alpha20: #2a2a2a;
+            --color-text-primary: #f7f7f7;
+            --color-text-secondary: #747474;
+            --color-text-tertiary: #424242;
+            --color-accent-primary: #e0015b;
+            --color-accent-secondary: #3481dc;
+            --color-accent-tertiary: #25b925;
+            --color-success: #25b925;
+            --color-danger: #e00113;
+            --color-warning: #ff8c00;
+            
+            --fs-xs: 10px;
+            --fs-sm: 12.8px;
+            --fs-base: 16px;
+            --fs-md: 20px;
+            --fs-lg: 25px;
+            --fs-xl: 31.25px;
+            --fs-xxl: 39.06px;
+            --pd-section: 10px;
+            
+            /* Единый радиус скругления */
+            --border-radius-sm: 6px;
+            --border-radius-md: 8px;
+            --border-radius-lg: 12px;
+        }
+
+        @supports (font-size: clamp(1rem,1vw,1rem)) {
+            :root {
+                --fs-xs: clamp(10px,0.05vw + 9.8px,11px);
+                --fs-sm: clamp(12.8px,0.08vw + 12.48px,13.5px);
+                --fs-base: clamp(16px,0.23vw + 15.09px,18px);
+                --fs-md: clamp(20px,0.45vw + 18.18px,23.99px);
+                --fs-lg: clamp(25px,0.79vw + 21.83px,31.98px);
+                --fs-xl: clamp(31.25px,1.29vw + 26.08px,42.63px);
+                --fs-xxl: clamp(39.06px,2.02vw + 30.99px,56.83px);
+                --pd-section: clamp(10px,2.5%,40px);
+            }
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: var(--color-background-primary);
+            min-height: 100vh;
+            padding: var(--pd-section);
+            color: var(--color-text-primary);
+            line-height: 1.25;
+            font-weight: 580;
+        }
+
+        * {
+            font-feature-settings: "pnum";
+            font-variant-numeric: proportional-nums;
+        }
+
+        input {
+            user-select: text;
+        }
+
+        .global-controls {
+            border: 1px solid var(--color-text-tertiary);
+            border-radius: var(--border-radius-lg);
+            overflow: visible;
+            background: var(--color-background-secondary);
+            padding: 20px;
+            max-width: 1300px;
+            margin: 0 auto 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .global-title {
+            font-size: var(--fs-lg);
+            font-weight: 700;
+            color: var(--color-text-primary);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .global-title span {
+            background: var(--color-background-tertiary);
+            border: 1px solid var(--color-text-tertiary);
+            padding: 4px 16px;
+            font-size: var(--fs-sm);
+            font-weight: 600;
+            color: var(--color-accent-primary);
+            border-radius: var(--border-radius-sm);
+        }
+
+        .add-card-btn {
+            position: relative;
+            border: 1px solid var(--color-accent-primary);
+            border-radius: var(--border-radius-lg);
+            overflow: hidden;
+            padding: 12px 24px;
+            background: var(--color-accent-primary);
+            color: #FFFFFF;
+            font-size: var(--fs-base);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.08s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .add-card-btn:hover {
+            opacity: 0.8;
+        }
+
+        .cards-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 24px;
+            justify-content: center;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .card-wrapper {
+            flex: 0 1 360px;
+            min-width: 340px;
+        }
+
+        .card {
+            border: 1px solid var(--color-text-tertiary);
+            border-radius: var(--border-radius-lg);
+            overflow: visible;
+            background: var(--color-background-primary);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.15s;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .card:active {
+            transform: scale(0.98);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
+            padding: 12px 16px;
+            background: var(--card-color, var(--color-accent-primary));
+            border-bottom: 1px solid var(--color-text-tertiary);
+            position: relative;
+            z-index: 1;
+            border-top-left-radius: var(--border-radius-lg);
+            border-top-right-radius: var(--border-radius-lg);
+        }
+
+        .card-title {
+            font-size: var(--fs-base);
+            font-weight: 600;
+            color: #ffffff;
+            flex: 1;
+            cursor: pointer;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            max-width: calc(100% - 70px);
+            line-height: 1.3;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .card-title.editing {
+            background: var(--color-background-primary);
+            color: var(--color-text-primary);
+            padding: 4px 10px;
+            border: 2px solid var(--color-accent-primary);
+            border-radius: var(--border-radius-sm);
+            cursor: text;
+            -webkit-line-clamp: unset;
+            overflow: visible;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+
+        .header-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: var(--border-radius-sm);
+            background: rgba(0,0,0,0.3);
+            color: #ffffff;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.15s;
+            flex-shrink: 0;
+            z-index: 20;
+            position: relative;
+        }
+
+        .header-btn:hover {
+            background: var(--color-accent-primary);
+            border-color: var(--color-accent-primary);
+        }
+
+        /* Скрываем кнопку разблокировки в режиме кнопок */
+        .card.mode-buttons .unlock-btn {
+            display: none;
+        }
+
+        /* Универсальный стиль для всех подсказок */
+        .tooltip {
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%) translateY(0);
+            background: var(--color-background-secondary);
+            border: 1px solid var(--color-background-tertiary);
+            border-radius: var(--border-radius-sm);
+            padding: 6px 10px;
+            font-size: var(--fs-xs);
+            font-weight: 500;
+            color: var(--color-text-primary);
+            white-space: nowrap;
+            z-index: 10000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s ease, visibility 0.2s ease;
+            pointer-events: none;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 6px;
+            border-style: solid;
+            border-color: var(--color-background-tertiary) transparent transparent transparent;
+        }
+
+        .tooltip::before {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 5px;
+            border-style: solid;
+            border-color: var(--color-background-secondary) transparent transparent transparent;
+            z-index: 10001;
+        }
+
+        .color-dot {
+            position: relative;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--color-value);
+            box-shadow: 0 0 0 2px var(--color-background-primary), 0 2px 4px rgba(0,0,0,0.2);
+            cursor: pointer;
+            transition: transform 0.15s, box-shadow 0.15s;
+            flex-shrink: 0;
+            z-index: 10;
+        }
+
+        .color-dot:hover {
+            transform: scale(1.5);
+            box-shadow: 0 0 0 2px var(--color-background-primary), 0 3px 8px rgba(0,0,0,0.3);
+            z-index: 100;
+        }
+
+        .color-dot:hover .tooltip {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .color-dot.active {
+            box-shadow: 0 0 0 2px var(--color-accent-primary), 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        /* Панель настроек под заголовком */
+        .card-controls-panel {
+            padding: 16px;
+            border-bottom: 1px solid var(--color-text-tertiary);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            position: relative;
+            z-index: 5;
+            transition: opacity 0.3s ease;
+        }
+
+        /* Первая строка настроек - цвет и шаг */
+        .controls-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            min-height: 38px;
+        }
+
+        .control-item {
+            height: 38px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0 8px;
+            border-radius: var(--border-radius-md);
+            border: 1px solid var(--color-background-tertiary);
+            background: var(--color-background-primary);
+            color: var(--color-text-primary);
+            font-size: var(--fs-sm);
+            font-weight: 600;
+            transition: all 0.2s;
+            box-sizing: border-box;
+            position: relative;
+            overflow: visible;
+            z-index: 15;
+        }
+
+        .control-item:hover {
+            border-color: var(--color-accent-primary);
+        }
+
+        .control-item span {
+            color: var(--color-text-secondary);
+            font-size: var(--fs-sm);
+            font-weight: 500;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .control-item input[type="number"] {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: var(--color-text-primary);
+            font-size: var(--fs-sm);
+            outline: none;
+            text-align: right;
+            font-weight: 600;
+            flex-shrink: 1;
+            min-width: 0;
+        }
+
+        /* Убираем стрелки у числового поля, но оставляем возможность прокрутки колесиком */
+        .control-item input[type="number"]::-webkit-inner-spin-button,
+        .control-item input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        
+        .control-item input[type="number"] {
+            -moz-appearance: textfield;
+            appearance: textfield;
+        }
+
+        /* Блок цвета занимает больше места */
+        .control-item.color-item {
+            flex: 2;
+            min-width: 150px;
+        }
+
+        /* Блок шага занимает меньше места */
+        .control-item.step-item {
+            flex: 1;
+            min-width: 60px;
+        }
+
+        /* Блок с выбором цвета - только предустановленные цвета, без пикера */
+        .color-picker {
+            display: flex;
+            align-items: center;
+            margin-left: auto;
+            flex-wrap: nowrap;
+            flex-shrink: 1;
+            min-width: 0;
+            justify-content: flex-end;
+        }
+
+        /* Предустановленные цвета */
+        .preset-colors {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        /* Переключатель режимов */
+        .mode-toggle {
+            position: relative;
+            display: flex;
+            align-items: center;
+            background: var(--color-background-secondary);
+            border: 1px solid var(--color-background-tertiary);
+            border-radius: var(--border-radius-lg);
+            padding: 4px;
+            gap: 2px;
+            box-sizing: border-box;
+            height: 38px;
+            width: 100%;
+            z-index: 15;
+        }
+
+        .mode-btn {
+            position: relative;
+            height: 100%;
+            flex: 1;
+            padding: 0 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            border: none;
+            border-radius: var(--border-radius-md);
+            cursor: pointer;
+            color: var(--color-text-secondary);
+            font-size: var(--fs-sm);
+            font-weight: 500;
+            white-space: nowrap;
+            transition: color 0.15s;
+            box-sizing: border-box;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            z-index: 20;
+        }
+
+        .mode-btn:hover {
+            color: var(--color-text-primary);
+        }
+
+        .mode-btn:active {
+            transform: scale(0.96);
+        }
+
+        .mode-btn.active {
+            color: white;
+        }
+
+        .mode-indicator {
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            width: calc(50% - 4px);
+            height: calc(100% - 8px);
+            background: var(--color-accent-primary);
+            border-radius: var(--border-radius-md);
+            z-index: 10;
+            transition: transform 0.2s ease;
+            pointer-events: none;
+        }
+
+        .mode-indicator.click {
+            transform: translateX(0);
+        }
+
+        .mode-indicator.buttons {
+            transform: translateX(100%);
+        }
+
+        .card-value {
+            font-family: 'JetBrains Mono', 'SF Mono', monospace;
+            font-size: var(--fs-xxl);
+            font-weight: 600;
+            text-align: center;
+            padding: 24px 10px;
+            background: transparent;
+            color: var(--color-text-primary);
+            border-bottom: 1px solid var(--color-text-tertiary);
+            font-variant-numeric: tabular-nums;
+            word-wrap: break-word;
+            white-space: normal;
+            overflow-wrap: break-word;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 5;
+        }
+
+        .card-value.editing {
+            background: var(--color-background-primary);
+            border: 2px solid var(--color-accent-primary);
+            margin: -1px;
+            padding: 8px 10px;
+            cursor: text;
+            font-size: var(--fs-lg);
+            border-radius: var(--border-radius-md);
+        }
+
+        .card-value input,
+        .card-title input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            font-size: inherit;
+            font-weight: inherit;
+            font-family: inherit;
+            color: inherit;
+            text-align: inherit;
+            outline: none;
+            padding: 0;
+        }
+
+        /* Нижняя панель с датой и кнопками */
+        .card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            gap: 12px;
+            position: relative;
+            z-index: 5;
+            transition: opacity 0.3s ease;
+        }
+
+        /* Дата в новом стиле - как .ys5o4Pi5 */
+        .last-updated {
+            background-color: rgba(241, 196, 15, 0.2);
+            color: #f1c40f;
+            border: 1px solid rgba(255, 153, 0, 0.15);
+            border-radius: var(--border-radius-sm);
+            padding: 6px 10px;
+            font-size: var(--fs-xs);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+            height: 32px;
+        }
+
+        /* Кнопки действий */
+        .card-actions {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .action-btn {
+            width: 38px;
+            height: 38px;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: var(--border-radius-sm);
+            background: rgba(0,0,0,0.3);
+            color: #ffffff;
+            font-size: var(--fs-md);
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s;
+            flex-shrink: 0;
+            box-sizing: border-box;
+            position: relative;
+            z-index: 15;
+        }
+
+        .action-btn:hover:not(:disabled) {
+            background: var(--color-accent-primary);
+            border-color: var(--color-accent-primary);
+        }
+
+        .action-btn:active:not(:disabled) {
+            transform: scale(0.95);
+        }
+
+        .action-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .reset-btn {
+            font-size: var(--fs-base) !important;
+        }
+
+        /* Стили для режима клик - затемнение и косые линии */
+        .card.mode-click .card-controls-panel {
+            position: relative;
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .card.mode-click .card-controls-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(
+                45deg,
+                rgba(255, 255, 255, 0.03) 0px,
+                rgba(255, 255, 255, 0.03) 10px,
+                rgba(255, 255, 255, 0.08) 10px,
+                rgba(255, 255, 255, 0.08) 20px
+            );
+            pointer-events: none;
+            z-index: 50;
+            border-radius: inherit;
+        }
+
+        .card.mode-click .card-footer {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .card.mode-click .card-footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(
+                45deg,
+                rgba(255, 255, 255, 0.03) 0px,
+                rgba(255, 255, 255, 0.03) 10px,
+                rgba(255, 255, 255, 0.08) 10px,
+                rgba(255, 255, 255, 0.08) 20px
+            );
+            pointer-events: none;
+            z-index: 50;
+            border-radius: inherit;
+        }
+
+        .card.mode-click .card-value {
+            position: relative;
+            z-index: 10;
+            cursor: pointer;
+        }
+
+        .card.mode-click .card-header {
+            position: relative;
+            z-index: 10;
+            cursor: pointer;
+            pointer-events: auto;
+        }
+
+        .card.mode-click .header-btn {
+            pointer-events: auto;
+            z-index: 100;
+            opacity: 1;
+        }
+
+        .card.mode-click .action-btn {
+            pointer-events: none;
+            opacity: 0.3;
+        }
+
+        .card.mode-click {
+            cursor: pointer;
+        }
+
+        .card.mode-buttons {
+            cursor: default;
+        }
+
+        /* Убеждаемся, что подсказки всегда поверх всего */
+        .card.mode-click .color-dot .tooltip,
+        .card.mode-buttons .color-dot .tooltip {
+            z-index: 10000 !important;
+        }
+
+        .card.mode-click .color-dot:hover .tooltip,
+        .card.mode-buttons .color-dot:hover .tooltip {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        ::-webkit-scrollbar {
+            background-color: transparent;
+            width: 5px;
+            height: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background-color: var(--color-text-tertiary);
+            border-radius: 10px;
+        }
+
+        ::selection {
+            background-color: var(--color-accent-primary);
+            color: white;
+        }
+
+        @media (max-width: 700px) {
+            .global-controls {
+                flex-direction: column;
+                gap: 16px;
+                align-items: stretch;
+            }
+            
+            .global-title {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            
+            .add-card-btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .card-footer {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .last-updated {
+                width: 100%;
+                text-align: center;
+            }
+            
+            .card-actions {
+                justify-content: center;
+            }
+            
+            .controls-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .control-item.color-item,
+            .control-item.step-item {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="global-controls">
+        <div class="global-title">
+            Majestic Counters
+            <span id="cardsCount">1</span>
+        </div>
+        <button class="add-card-btn" id="addCardBtn">
+            <span>+</span> Новая карточка
+        </button>
+    </div>
+
+    <div class="cards-grid" id="cardsContainer"></div>
+
+    <script>
+        (function() {
+            // Предустановленные цвета с простыми названиями 1-10
+            const presetColors = [
+                { color: '#e0015b', name: '1' },
+                { color: '#FFC130', name: '2' },
+                { color: '#D9B47C', name: '3' },
+                { color: '#BBAA7E', name: '4' },
+                { color: '#808080', name: '5' },
+                { color: '#1A6FC4', name: '6' },
+                { color: '#25b925', name: '7' },
+                { color: '#ff8c00', name: '8' },
+                { color: '#9b59b6', name: '9' },
+                { color: '#3498db', name: '10' }
+            ];
+
+            function formatDate(date) {
+                const day = String(date.getDate()).padStart(2, '0');
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const year = date.getFullYear();
+                const hours = String(date.getHours()).padStart(2, '0');
+                const minutes = String(date.getMinutes()).padStart(2, '0');
+                return `${day}.${month}.${year} ${hours}:${minutes}`;
+            }
+
+            function makeEditable(element, type, onSave, getMode) {
+                let input = null;
+                let isEditing = false;
+
+                function startEditing() {
+                    if (getMode() === 'click') return;
+                    if (isEditing) return;
+                    
+                    isEditing = true;
+                    const currentValue = type === 'title' 
+                        ? element.textContent 
+                        : element.textContent;
+
+                    element.classList.add('editing');
+                    
+                    input = document.createElement('input');
+                    input.type = type === 'title' ? 'text' : 'number';
+                    input.value = currentValue;
+                    input.style.width = '100%';
+                    
+                    if (type === 'title') {
+                        input.maxLength = 30;
+                    }
+                    
+                    element.textContent = '';
+                    element.appendChild(input);
+                    input.focus();
+                    
+                    function finishEditing() {
+                        if (!isEditing) return;
+                        
+                        const newValue = input.value.trim();
+                        element.classList.remove('editing');
+                        
+                        if (type === 'title') {
+                            const finalValue = newValue || 'Счетчик';
+                            element.textContent = finalValue;
+                            onSave(finalValue);
+                        } else {
+                            const numValue = parseFloat(newValue);
+                            if (!isNaN(numValue)) {
+                                element.textContent = numValue;
+                                onSave(numValue);
+                            } else {
+                                element.textContent = currentValue;
+                                onSave(parseFloat(currentValue));
+                            }
+                        }
+                        
+                        isEditing = false;
+                        input = null;
+                    }
+                    
+                    input.addEventListener('blur', finishEditing);
+                    input.addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            finishEditing();
+                        }
+                    });
+                    
+                    input.addEventListener('click', (e) => e.stopPropagation());
+                }
+
+                element.addEventListener('dblclick', (e) => {
+                    e.stopPropagation();
+                    startEditing();
+                });
+
+                return element;
+            }
+
+            function createCard(initialData = {}) {
+                const defaultData = {
+                    title: 'Счетчик',
+                    color: '#e0015b',
+                    step: 1,
+                    value: 0,
+                    mode: 'click',
+                    lastUpdated: new Date()
+                };
+
+                const cardData = { ...defaultData, ...initialData };
+
+                const wrapper = document.createElement('div');
+                wrapper.className = 'card-wrapper';
+
+                const card = document.createElement('div');
+                card.className = `card mode-${cardData.mode}`;
+                card.style.setProperty('--card-color', cardData.color);
+
+                // Генерируем цветовые точки с номерами 1-10 и подсказками
+                const colorDotsHTML = presetColors.map(preset => `
+                    <div class="color-dot" style="--color-value: ${preset.color};" data-color="${preset.color}">
+                        <div class="tooltip">${preset.name}</div>
+                    </div>
+                `).join('');
+
+                card.innerHTML = `
+                    <div class="card-header">
+                        <div class="card-title">${cardData.title}</div>
+                        <div class="header-actions">
+                            <button class="header-btn unlock-btn" title="Переключиться в режим кнопок">
+                                🔒
+                            </button>
+                            <button class="header-btn delete-card" title="Удалить карточку">✕</button>
+                        </div>
+                    </div>
+                    
+                    <div class="card-controls-panel">
+                        <div class="controls-row">
+                            <div class="control-item color-item">
+                                <span>Цвет</span>
+                                <div class="color-picker">
+                                    <div class="preset-colors">
+                                        ${colorDotsHTML}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="control-item step-item">
+                                <span>Шаг</span>
+                                <input type="number" class="step-input" value="${cardData.step}" step="1" min="1">
+                            </div>
+                        </div>
+                        <div class="mode-toggle">
+                            <button class="mode-btn" data-mode="click">
+                                <span>КЛИК</span>
+                            </button>
+                            <button class="mode-btn" data-mode="buttons">
+                                <span>КНОПКИ</span>
+                            </button>
+                            <div class="mode-indicator ${cardData.mode === 'click' ? 'click' : 'buttons'}"></div>
+                        </div>
+                    </div>
+
+                    <div class="card-value">${cardData.value}</div>
+
+                    <div class="card-footer">
+                        <div class="last-updated">
+                            Изменено: ${formatDate(cardData.lastUpdated)}
+                        </div>
+                        <div class="card-actions">
+                            <button class="action-btn decrement-btn" ${cardData.mode === 'click' ? 'disabled' : ''}>−</button>
+                            <button class="action-btn reset-btn" ${cardData.mode === 'click' ? 'disabled' : ''}>↺</button>
+                            <button class="action-btn increment-btn" ${cardData.mode === 'click' ? 'disabled' : ''}>+</button>
+                        </div>
+                    </div>
+                `;
+
+                wrapper.appendChild(card);
+                
+                const titleElement = card.querySelector('.card-title');
+                const valueElement = card.querySelector('.card-value');
+                const colorDots = card.querySelectorAll('.color-dot');
+                const stepInput = card.querySelector('.step-input');
+                const lastUpdatedElement = card.querySelector('.last-updated');
+                const decrementBtn = card.querySelector('.decrement-btn');
+                const incrementBtn = card.querySelector('.increment-btn');
+                const resetBtn = card.querySelector('.reset-btn');
+                const deleteBtn = card.querySelector('.delete-card');
+                const unlockBtn = card.querySelector('.unlock-btn');
+                const modeToggle = card.querySelector('.mode-toggle');
+                const modeButtons = modeToggle.querySelectorAll('.mode-btn');
+                const modeIndicator = modeToggle.querySelector('.mode-indicator');
+                
+                let currentValue = cardData.value;
+                let currentStep = cardData.step;
+                let currentMode = cardData.mode;
+                let lastUpdated = cardData.lastUpdated;
+                let currentColor = cardData.color;
+
+                function updateLastUpdated() {
+                    lastUpdated = new Date();
+                    lastUpdatedElement.textContent = `Изменено: ${formatDate(lastUpdated)}`;
+                }
+
+                function getCurrentMode() {
+                    return currentMode;
+                }
+
+                makeEditable(titleElement, 'title', (newTitle) => {
+                    cardData.title = newTitle;
+                    updateLastUpdated();
+                }, getCurrentMode);
+
+                makeEditable(valueElement, 'value', (newValue) => {
+                    currentValue = newValue;
+                    cardData.value = newValue;
+                    updateLastUpdated();
+                }, getCurrentMode);
+
+                function setColor(newColor) {
+                    currentColor = newColor;
+                    card.style.setProperty('--card-color', newColor);
+                    
+                    // Обновляем активный класс на точках
+                    colorDots.forEach(dot => {
+                        const dotColor = dot.dataset.color;
+                        if (dotColor === newColor) {
+                            dot.classList.add('active');
+                        } else {
+                            dot.classList.remove('active');
+                        }
+                    });
+                    
+                    updateLastUpdated();
+                }
+
+                function updateStep() {
+                    let rawStep = parseInt(stepInput.value, 10);
+                    if (isNaN(rawStep) || rawStep < 1) rawStep = 1;
+                    if (rawStep > 1000) rawStep = 1000;
+                    currentStep = rawStep;
+                    stepInput.value = currentStep;
+                    updateLastUpdated();
+                }
+
+                function updateValue(newVal) {
+                    if (isNaN(newVal)) newVal = 0;
+                    if (newVal > 1e15) newVal = 1e15;
+                    if (newVal < -1e15) newVal = -1e15;
+                    currentValue = newVal;
+                    valueElement.textContent = newVal;
+                    cardData.value = newVal;
+                    updateLastUpdated();
+                }
+
+                function setMode(mode) {
+                    currentMode = mode;
+                    
+                    card.classList.remove('mode-click', 'mode-buttons');
+                    card.classList.add(`mode-${mode}`);
+                    
+                    modeButtons.forEach(btn => {
+                        const btnMode = btn.dataset.mode;
+                        if (btnMode === mode) {
+                            btn.classList.add('active');
+                        } else {
+                            btn.classList.remove('active');
+                        }
+                    });
+                    
+                    // Анимируем индикатор
+                    if (mode === 'click') {
+                        modeIndicator.classList.remove('buttons');
+                        modeIndicator.classList.add('click');
+                    } else {
+                        modeIndicator.classList.remove('click');
+                        modeIndicator.classList.add('buttons');
+                    }
+                    
+                    // Обновляем disabled состояние кнопок
+                    decrementBtn.disabled = mode === 'click';
+                    resetBtn.disabled = mode === 'click';
+                    incrementBtn.disabled = mode === 'click';
+                    
+                    updateLastUpdated();
+                }
+
+                setMode(currentMode);
+                setColor(currentColor);
+
+                // Обработчик для кнопки разблокировки
+                unlockBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    // Переключаем в режим кнопок
+                    setMode('buttons');
+                    updateLastUpdated();
+                });
+
+                // Обработчики для цветовых точек
+                colorDots.forEach(dot => {
+                    dot.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (currentMode === 'click') return;
+                        const newColor = dot.dataset.color;
+                        setColor(newColor);
+                    });
+                });
+
+                // Переменная для отслеживания фокуса на поле шага
+                let isStepFocused = false;
+
+                stepInput.addEventListener('focus', () => {
+                    isStepFocused = true;
+                });
+
+                stepInput.addEventListener('blur', () => {
+                    isStepFocused = false;
+                });
+
+                // Обработчик для поля шага - прокрутка колесиком только когда поле в фокусе
+                stepInput.addEventListener('wheel', (e) => {
+                    if (!isStepFocused) return;
+                    if (currentMode === 'click') return;
+                    
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    const delta = e.deltaY > 0 ? -1 : 1;
+                    const currentVal = parseInt(stepInput.value, 10) || currentStep;
+                    const newVal = Math.max(1, Math.min(1000, currentVal + delta));
+                    
+                    stepInput.value = newVal;
+                    currentStep = newVal;
+                    updateLastUpdated();
+                }, { passive: false });
+
+                stepInput.addEventListener('input', (e) => {
+                    let raw = e.target.value;
+                    if (raw === '' || raw === '-') return;
+                    let parsed = parseInt(raw, 10);
+                    if (!isNaN(parsed) && parsed > 0) {
+                        currentStep = Math.min(1000, Math.max(1, parsed));
+                        stepInput.value = currentStep;
+                    }
+                });
+                stepInput.addEventListener('blur', updateStep);
+
+                decrementBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (currentMode === 'buttons') {
+                        updateValue(currentValue - currentStep);
+                    }
+                });
+
+                incrementBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (currentMode === 'buttons') {
+                        updateValue(currentValue + currentStep);
+                    }
+                });
+
+                resetBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (currentMode === 'buttons') {
+                        updateValue(0);
+                    }
+                });
+
+                card.addEventListener('click', (e) => {
+                    if (e.target.closest('.editing')) return;
+                    
+                    if (e.target.tagName === 'BUTTON' || 
+                        e.target.tagName === 'INPUT' ||
+                        e.target.closest('button') ||
+                        e.target.closest('input') ||
+                        e.target.closest('.color-dot')) {
+                        return;
+                    }
+                    
+                    if (currentMode === 'click') {
+                        updateValue(currentValue + currentStep);
+                    }
+                });
+
+                modeButtons.forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (currentMode === 'click') return;
+                        const mode = btn.dataset.mode;
+                        setMode(mode);
+                    });
+                });
+
+                deleteBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    wrapper.remove();
+                    updateCardsCounter();
+                });
+
+                return wrapper;
+            }
+
+            const container = document.getElementById('cardsContainer');
+            const cardsCountSpan = document.getElementById('cardsCount');
+            
+            function updateCardsCounter() {
+                const count = container.children.length;
+                cardsCountSpan.textContent = count;
+            }
+
+            function addNewCard() {
+                const card = createCard();
+                container.appendChild(card);
+                updateCardsCounter();
+            }
+
+            addNewCard();
+            document.getElementById('addCardBtn').addEventListener('click', addNewCard);
+        })();
+    </script>
+</body>
+</html>
