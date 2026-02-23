@@ -790,6 +790,9 @@
                 { color: '#3498db', name: '10' }
             ];
 
+            // Ключ для localStorage
+            const STORAGE_KEY = 'majestic-counters-data';
+
             function formatDate(date) {
                 const day = String(date.getDate()).padStart(2, '0');
                 const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -871,6 +874,45 @@
                 return element;
             }
 
+            function saveCardsToStorage() {
+                const cards = [];
+                document.querySelectorAll('.card-wrapper').forEach(wrapper => {
+                    const card = wrapper.querySelector('.card');
+                    const title = card.querySelector('.card-title').textContent;
+                    const color = card.style.getPropertyValue('--card-color') || '#e0015b';
+                    const step = parseFloat(card.querySelector('.step-input').value) || 1;
+                    const value = parseFloat(card.querySelector('.card-value').textContent) || 0;
+                    const mode = card.classList.contains('mode-click') ? 'click' : 'buttons';
+                    const lastUpdated = card.querySelector('.last-updated').textContent.replace('Изменено: ', '');
+                    
+                    cards.push({
+                        title,
+                        color,
+                        step,
+                        value,
+                        mode,
+                        lastUpdated
+                    });
+                });
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(cards));
+            }
+
+            function loadCardsFromStorage() {
+                const savedData = localStorage.getItem(STORAGE_KEY);
+                if (savedData) {
+                    try {
+                        const cards = JSON.parse(savedData);
+                        cards.forEach(cardData => {
+                            createCard(cardData);
+                        });
+                        return true;
+                    } catch (e) {
+                        console.error('Ошибка загрузки данных:', e);
+                    }
+                }
+                return false;
+            }
+
             function createCard(initialData = {}) {
                 const defaultData = {
                     title: 'Счетчик',
@@ -878,7 +920,7 @@
                     step: 1,
                     value: 0,
                     mode: 'click',
-                    lastUpdated: new Date()
+                    lastUpdated: formatDate(new Date())
                 };
 
                 const cardData = { ...defaultData, ...initialData };
@@ -938,7 +980,7 @@
 
                     <div class="card-footer">
                         <div class="last-updated">
-                            Изменено: ${formatDate(cardData.lastUpdated)}
+                            Изменено: ${cardData.lastUpdated}
                         </div>
                         <div class="card-actions">
                             <button class="action-btn decrement-btn" ${cardData.mode === 'click' ? 'disabled' : ''}>−</button>
@@ -967,12 +1009,12 @@
                 let currentValue = cardData.value;
                 let currentStep = cardData.step;
                 let currentMode = cardData.mode;
-                let lastUpdated = cardData.lastUpdated;
                 let currentColor = cardData.color;
 
                 function updateLastUpdated() {
-                    lastUpdated = new Date();
-                    lastUpdatedElement.textContent = `Изменено: ${formatDate(lastUpdated)}`;
+                    const now = formatDate(new Date());
+                    lastUpdatedElement.textContent = `Изменено: ${now}`;
+                    saveCardsToStorage();
                 }
 
                 function getCurrentMode() {
@@ -1167,9 +1209,11 @@
                 deleteBtn.addEventListener('click', (e) => {
                     e.stopPropagation();
                     wrapper.remove();
+                    saveCardsToStorage();
                     updateCardsCounter();
                 });
 
+                container.appendChild(wrapper);
                 return wrapper;
             }
 
@@ -1179,15 +1223,22 @@
             function updateCardsCounter() {
                 const count = container.children.length;
                 cardsCountSpan.textContent = count;
+                saveCardsToStorage();
             }
 
             function addNewCard() {
-                const card = createCard();
-                container.appendChild(card);
+                createCard();
                 updateCardsCounter();
             }
 
-            addNewCard();
+            // Загружаем сохраненные карточки или создаем одну новую
+            const hasLoaded = loadCardsFromStorage();
+            if (!hasLoaded) {
+                addNewCard();
+            } else {
+                updateCardsCounter();
+            }
+
             document.getElementById('addCardBtn').addEventListener('click', addNewCard);
         })();
     </script>
