@@ -414,6 +414,7 @@
 
         .control-item {
             height: 38px;
+            min-height: 38px;
             display: flex;
             align-items: center;
             gap: 8px;
@@ -1087,6 +1088,25 @@
             .control-item.color-item,
             .control-item.step-item {
                 width: 100%;
+            }
+            
+            /* Добавляем стили для мобильной версии цели и остатка */
+            .target-row {
+                flex-wrap: wrap;
+            }
+            
+            .target-item {
+                /* width: 100%; */
+                flex: auto;
+            }
+            
+            .remaining-container {
+                width: 100%;
+                justify-content: flex-end;
+            }
+            
+            .remaining-value {
+                width: auto;
             }
         }
     </style>
